@@ -1,21 +1,26 @@
-name: GitHub Actions Demo
-run-name: ${{ github.actor }} is testing out GitHub Actions 🚀
-on: [push]
+name: Static Analysis
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+  workflow_dispatch:
 jobs:
-  Explore-GitHub-Actions:
+  analyze:
     runs-on: ubuntu-latest
     steps:
-      - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
-      - run: echo "🐧 This job is now running on a ${{ runner.os }} server hosted by GitHub!"
-      - run: echo "🔎 The name of your branch is ${{ github.ref }} and your repository is ${{ github.repository }}."
-      - name: Check out repository code
-        uses: actions/checkout@v3
-      - run: echo "💡 The ${{ github.repository }} repository has been cloned to the runner."
-      - run: echo "🖥️ The workflow is now ready to test your code on the runner."
-      - name: List files in the repository
-        run: |
-          ls ${{ github.workspace }}
-      - run: echo "🍏 This job's status is ${{ job.status }}."
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
-name: SFDX Scan Pull Request
-  uses: mitchspano/sfdx-scan-pull-request@v0.1.11
+      - name: Install SFDX CLI and Scanner
+        run: |
+          npm install sfdx-cli -g
+          sfdx plugins:install @salesforce/sfdx-scanner
+
+      - name: Run SFDX Scanner - Report findings as comments
+        uses: mitchspano/sfdx-scan-pull-request@v0.1.8
+        with:
+          pmdconfig: ruleset.xml
+          severity-threshold: 4
+          strictly-enforced-rules: '[{ "engine": "pmd", "category": "Performance", "rule": "AvoidDebugStatements" }]'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
