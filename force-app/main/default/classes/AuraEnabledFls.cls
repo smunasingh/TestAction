@@ -1,6 +1,6 @@
 public with sharing class AuraEnabledFls {
 
-	@AuraEnabled
+	@AuraEnabled(callout=true)
 	public static Account flsHelperGivenIncorrectObjectType() {
 		// Note that the helper object is being created on the 'Contact' object type.
 		FlsHelperClass helper = new FlsHelperClass('Contact');
