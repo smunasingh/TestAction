@@ -3,11 +3,7 @@ on:
   pull_request:
     types: [opened, reopened, synchronize]
   workflow_dispatch:
-permissions:
-  id-token: write
-  contents: read
-  issues: write
-  pull-requests: write 
+permissions: read-all|write-all
 jobs:
   analyze:
     runs-on: ubuntu-latest
